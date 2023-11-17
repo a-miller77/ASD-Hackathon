@@ -7,14 +7,14 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.schema.document import Document
 
 class ClinicMatch:
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = None) -> None:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
         embeddings = HuggingFaceEmbeddings()
         del os.environ["HUGGINGFACEHUB_API_TOKEN"]
 
         data = CSVLoader(
-            file_path='./big_data_energy/our_data2.csv', 
-            source_column="Site"
+            file_path=file_path, 
+            source_column=source
         ).load()
 
         self.db = FAISS.from_documents(data, embeddings)
