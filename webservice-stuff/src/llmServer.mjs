@@ -63,11 +63,18 @@ app.get('/terms', (req, res) => {
 
 app.post('/input', (req, res) => {
     let socketId = req.query.id;
-    conversations[socketId].push(req.body.message);
-    let status = "Success";
-    res.json({
-        status
-    })
+    if (conversations[socketId]) {
+        conversations[socketId].push(req.body.message);
+        let status = "Success";
+        res.json({
+            status
+        })
+    } else {
+        let status = "error";
+        res.json({
+            status
+        })
+    }
 });
 
 app.delete('/resetConv', (req, res) => {
