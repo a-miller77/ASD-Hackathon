@@ -21,6 +21,13 @@ app.get('/activeConversations', (req, res) => {
     })
 });
 
+app.get('/activeResponse', (req, res) => {
+    let socketId = req.query.id;
+    // Call internally to get a response from our model
+    let response = "Bot Example Response";
+    res.json({response});
+});
+
 app.post('/input', (req, res) => {
 
 });
@@ -34,12 +41,12 @@ io.on('connection', (socket) => {
     conversations[socket.id] = [];
 
     socket.on('disconnect', () => {
-        // conversations[socket.id];
+        delete conversations[socket.id];
         console.log("User disconnected");
     });
 
     socket.on('userMessage', (data) => {
-        conversations[socket.id].push(data.message);
+        conversations[socket.id].push(['User', data.message]);
         console.log(data);
         console.log(socket.id);
     });
