@@ -15,10 +15,6 @@ from langchain import PromptTemplate,  LLMChain
 
 from LangChain_chatbot_util import *
 
-import os
-import pandas as pd
-from clinic_match import ClinicMatch
-
 class ClinicMatch:
     def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = None) -> None:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
@@ -69,14 +65,12 @@ class ClinicQuery:
             """
 
         instruction = "Please catagorize the keywords in the request. Please start and end the list with START and END tags: \n\n {text}"
-        template = get_prompt(instruction, system_prompt)
-        # print(template)
+        template = create_prompt(instruction, system_prompt)
 
         prompt = PromptTemplate(template=template, input_variables=["text"])
 
         llm_chain = LLMChain(prompt=prompt, llm=HuggingFacePipeline(pipeline = self.pipe, model_kwargs = {'temperature':0}))
 
         output = llm_chain.run(text)
-        # output = generate(text, template)
 
-        return parse_text(output)
+        return  parse_text(output)
