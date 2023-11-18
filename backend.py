@@ -1,4 +1,6 @@
 import json, requests
+from clinic_match import ClinicMatch, ClinicQuery
+import pandas as pd
 
 from LangChain_chatbot_util import *
 
@@ -10,7 +12,11 @@ OUT_URL = 'https://6d85-155-92-14-110.ngrok-free.app/input?id='
 class Backend:
     def start():
         LLMFactory.initiate_model(model_name="lmsys/vicuna-7b-v1.3")
-        
+        key = read_api_key()
+
+        cm = ClinicMatch(key)
+        cq = ClinicQuery(key)
+
         while True:
            Backend.loop()
             
