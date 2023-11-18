@@ -4,17 +4,16 @@ let filterInputText;
 let filterInputBtn;
 let socket = io();
 let terms;
-let suggestedBtns;
 
 const submitQuery = (event) => {
     if (event instanceof KeyboardEvent) {
         if (event.key === "Enter") {
             userInputText.disabled = true;
-            userInputBtn.disabled = true;
+            // userInputBtn.disabled = true;
             event.preventDefault();
             sendResponse().then(r => {
                 userInputText.disabled = false;
-                userInputBtn.disabled = false;
+                // userInputBtn.disabled = false;
             });
         }
     } else {
@@ -49,7 +48,17 @@ const sendResponse = async () => {
 
     //API call to the LLM
     socket.emit("userMessage", {message: userInputText.value});
-    let data = await getResponse(socket.id);
+    // Checks to see if the length of the conversation has increased -
+    // possible race condition but model takes a while to run.
+    let currentResponse = await getLastResponse(socket.id);
+    let passingResponse = await getLastResponse(socket.id);
+    while (currentResponse === passingResponse) {
+        await new Promise(resolve => setTimeout(resolve, 5000))
+            .then(() => { console.log('Waiting for response from Server'); });
+        passingResponse = await getLastResponse(socket.id)
+    }
+    console.log(passingResponse);
+    data = passingResponse;
 
     // Generate DOM element based on api response
     let llmChatBubble = document.createElement("div");
@@ -134,10 +143,10 @@ const autofill = (event) => {
 
 window.onload = async () => {
     userInputText = document.getElementById("userInput");
-    userInputBtn = document.getElementById("planeSendBtn");
+    // userInputBtn = document.getElementById("planeSendBtn");
     filterInputText = document.getElementById("filter");
     userInputText.addEventListener('keydown', (e) => submitQuery(e));
-    userInputBtn.addEventListener('click', (e) => submitQuery(e))
+    // userInputBtn.addEventListener('click', (e) => submitQuery(e))
     filterInputText.addEventListener('keydown', (e) => updateTerms(e));
 
     document.getElementById("suggestedOptions").addEventListener('click', (e) => autofill(e));
