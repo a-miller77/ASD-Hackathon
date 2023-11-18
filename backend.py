@@ -7,6 +7,7 @@ from LangChain_chatbot_util import *
 
 WATCH_URL = 'https://6d85-155-92-14-110.ngrok-free.app/activeconversations'
 OUT_URL = 'https://6d85-155-92-14-110.ngrok-free.app/input?id='
+PROVIDER_OUT_URL = 'https://6d85-155-92-14-110.ngrok-free.app/inputProviderDetails?id='
 
 
 class Backend:
@@ -36,14 +37,14 @@ class Backend:
                 last_response = conversation[-1]
                 output, prompt = llm_response(last_response)
                 if output == 'begin provider programatical':
-                    Backend.post(Backend.provider(prompt), key)
+                    Backend.post(Backend.provider(prompt), PROVIDER_OUT_URL, key)
                 else:
-                    Backend.post(output, key)
+                    Backend.post(output, OUT_URL, key)
     
     def provider(prompt):
         return Backend.cq.query(Backend.cm.query_providers(prompt))
 
-    def post(output, key):
+    def post(output, URL, key):
         out_object = { "message": output }
                 
         out_json = json.dumps(out_object)
