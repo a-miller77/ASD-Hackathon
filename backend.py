@@ -28,12 +28,12 @@ class Backend:
                 last_response = conversation[-1]
                 output, prompt = llm_response(last_response)
                 if output == 'begin provider programatical':
-                    Backend.provider(prompt)
+                    Backend.post(Backend.provider(prompt), key)
                 else:
                     Backend.post(output, key)
     
-    def provider():
-        ''
+    def provider(prompt):
+        return Backend.cq.query(Backend.cm.query_providers(prompt))
 
     def post(output, key):
         out_object = { "message": output }
