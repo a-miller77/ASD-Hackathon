@@ -20,6 +20,29 @@
 <div class="page-content page-container" id="page-content">
     <div class="padding">
         <div class="row container d-flex justify-content-center">
+            <div class="col-sm">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> Example Questions </h5>
+                        <p class="card-text">
+                            Here are some quick example questions you could potentially ask the chatbot.
+                        </p>
+                        <div id="suggestedOptions">
+                            <a class="btn btn-primary m-2 suggested">
+                                Can you assist me in locating an ABA (Applied Behavior Analysis)
+                                therapist who works with preschool-aged children with autism?
+                            </a>
+                            <a class="btn btn-primary m-2 suggested"> I would like to know more about providers in the area
+                                that could help my child with Autism Spectrum Disorder manage their stress.</a>
+                            <a class="btn btn-primary m-2 suggested"> I would like to know where I
+                                could go to get my child screened for autism</a>
+                            <a class="btn btn-primary m-2 suggested"> I would like to obtain general knowledge
+                            about Autism Spectrum Disorder</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-md-6">
                 <div class="card card-bordered">
                     <div class="card-header">
@@ -53,6 +76,46 @@
                                 <input id="userInput" class="publisher-input overflow-auto" type="text" placeholder="Ask a question">
                             </label>
                             <a id="planeSendBtn" class="publisher-btn text-info" href="#" data-abc="true"><i class="fa fa-paper-plane"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- commented out for now, acronyms-->
+<!--        <div class="row container d-flex justify-content-center">-->
+<!--            <div class="col-md">-->
+<!--                <div class="card card-bordered">-->
+<!--                    <div class="card-body">-->
+<!--                        <h4 class="card-title"><strong>Acronyms Detected</strong></h4>-->
+<!--                        <p class="card-text">-->
+<!--                            Detected acronyms and their meaning.-->
+<!--                        </p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div class="row container d-flex justify-content-center">
+            <div class="col-sm">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> Term Lookup </h5>
+                        <p class="card-text">
+                            Here are some relatively common terms to look up in our database.
+                        </p>
+                        <div class="form-floating mb-3">
+                            <input type="textarea" id="filter" class="form-control" placeholder=" ">
+                            <label for="filter">Word Filter:</label>
+                        </div>
+                        <div>
+                            <table id="table1" class="table">
+                                <thead><tr><th>Term</th><th>Term Definition</th><th>Example</th><th>Source</th></tr></thead>
+                                <tbody id="table1body">
+                                <!-- This is the table results will appear -->
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>

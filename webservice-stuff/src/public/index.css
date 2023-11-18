@@ -305,3 +305,9 @@ button, input, optgroup, select, textarea {
 .text-info {
     color: #48b0f7 !important;
 }
+
+/* Changes Added */
+#table1 tbody tr td {
+    word-break: break-word;
+    inline-size: 150px;
+}
