@@ -12,18 +12,22 @@ class Backend:
         LLMFactory.initiate_model(model_name="lmsys/vicuna-7b-v1.3")
         
         while True:
-            site = requests.get(WATCH_URL)
-            o = json.loads(site.text)
+           Backend.loop()
             
-            for key, conversation in o['conversations'].items():
-                if conversation.__len__() % 2 == 1:
-                    last_response = conversation[-1]
-                    output = llm_response(last_response)
-                    
-                    out_object = { "message": output }
-                    
-                    out_json = json.dumps(out_object)
-                    requests.post(OUT_URL + key, json=out_json)
-            
+    def loop():
+        site = requests.get(WATCH_URL)
+        o = json.loads(site.text)
+        for key, conversation in o['conversations'].items():
+            if conversation.__len__() % 2 == 1:
+                last_response = conversation[-1]
+                output = llm_response(last_response)
+                
+                out_object = { "message": output }
+                
+                out_json = json.dumps(out_object)
+                requests.post(OUT_URL + key, json=out_json)
+
+    def provider():
+        ''
 
 Backend.start()
