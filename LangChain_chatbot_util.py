@@ -226,9 +226,9 @@ def llm_response(prompt: str):
 
 
 def determine_request_type(prompt: str) -> str:
-    if is_service(prompt): return 'service'
+    if is_service(prompt): return 'services'
     if is_faq(prompt): return 'faq'
-    return 'service'
+    return 'services'
 
 def is_service(prompt):
     doc = create_single_doc("./contexts/ASD_services")

@@ -31,23 +31,26 @@ class ClinicMatch:
     
     # def query(self, query: str) -> 'list[Document]':
     def query(self, query: str) -> str:
-        s = query.index("START") + 5
-        e = query.index("END")
-        search_term= query[s:e]
-        search_res =  self.db.similarity_search(search_term)
-        sources = [result.metadata['source'] for result in search_res]
-        return sources[:4]
+        try:
+            s = query.index("START")
+            e = query.index("END")
+            search_term= query[s:e]
+            search_res =  self.db.similarity_search(search_term)
+            sources = [result.metadata['source'] for result in search_res]
+            return sources[:4]
+        except:
+            return "Sorry, something went wrong."
     
 
 class ClinicQuery:
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, llm) -> None:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
 
         self.tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3",
                                           token=True,)
         
         self.pipe = pipeline("text-generation", 
-                model="lmsys/vicuna-7b-v1.3", 
+                model=llm, 
                 tokenizer= self.tokenizer,
                 torch_dtype=torch.bfloat16,
                 device_map="auto",
