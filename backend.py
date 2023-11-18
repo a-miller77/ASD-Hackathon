@@ -21,13 +21,18 @@ class Backend:
             if conversation.__len__() % 2 == 1:
                 last_response = conversation[-1]
                 output = llm_response(last_response)
-                
-                out_object = { "message": output }
-                
-                out_json = json.dumps(out_object)
-                requests.post(OUT_URL + key, json=out_json)
-
+                if output == 'begin provider programatical':
+                    Backend.provider()
+                else:
+                    Backend.post(output, key)
+    
     def provider():
         ''
+
+    def post(output, key):
+        out_object = { "message": output }
+                
+        out_json = json.dumps(out_object)
+        requests.post(OUT_URL + key, json=out_json)
 
 Backend.start()
