@@ -1,5 +1,6 @@
 let userInputText;
 let userInputBtn;
+let socket = io();
 
 window.onload = async () => {
     userInputText = document.getElementById("userInput");
@@ -50,7 +51,8 @@ const sendResponse = async () => {
     userChatBubbleMediaBody.insertAdjacentElement("afterbegin", userChatBubbleContent);
 
     //API call to the LLM
-    await new Promise(r => setTimeout(r, 2000));
+    socket.emit("userMessage", {message: userInputText.value});
+    let data = await getResponse(socket.id);
 
     // Generate DOM element based on api response
     let llmChatBubble = document.createElement("div");
@@ -60,7 +62,7 @@ const sendResponse = async () => {
     llmChatBubbleMediaBody.setAttribute("class", "media-body");
 
     let llmChatBubbleContent = document.createElement("p");
-    llmChatBubbleContent.innerText = "Example Bot Response";
+    llmChatBubbleContent.innerText = data;
 
     let llmAvatar = document.createElement("img");
     llmAvatar.setAttribute("class", "avatar");
