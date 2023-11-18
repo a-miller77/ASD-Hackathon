@@ -4,6 +4,7 @@ let filterInputText;
 let filterInputBtn;
 let socket = io();
 let terms;
+let loader;
 
 const submitQuery = (event) => {
     if (event instanceof KeyboardEvent) {
@@ -52,12 +53,14 @@ const sendResponse = async () => {
     // possible race condition but model takes a while to run.
     let currentResponse = await getLastResponse(socket.id);
     let passingResponse = await getLastResponse(socket.id);
+    loader.setAttribute("class", "loader visible");
     while (currentResponse === passingResponse) {
         await new Promise(resolve => setTimeout(resolve, 5000))
             .then(() => { console.log('Waiting for response from Server'); });
         passingResponse = await getLastResponse(socket.id)
     }
     console.log(passingResponse);
+    loader.setAttribute("class", "loader invisible");
     data = passingResponse;
 
     // Generate DOM element based on api response
@@ -148,7 +151,7 @@ window.onload = async () => {
     userInputText.addEventListener('keydown', (e) => submitQuery(e));
     // userInputBtn.addEventListener('click', (e) => submitQuery(e))
     filterInputText.addEventListener('keydown', (e) => updateTerms(e));
-
+    loader = document.getElementById('chatLoading');
     document.getElementById("suggestedOptions").addEventListener('click', (e) => autofill(e));
 
     loadTerms();
