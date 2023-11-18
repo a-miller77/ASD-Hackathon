@@ -1,7 +1,22 @@
 import express from "express";
 import {createServer} from "node:http";
 import {Server} from "socket.io";
+import { parse } from "csv-parse";
+import fs from "node:fs";
 
+// Parse CSV
+
+let terms = [];
+fs.createReadStream("./Hacksgiving ASD V1.4-Terms.csv")
+    .pipe(parse({delimiter: ",", from_line: 2}))
+    .on("data", (row) => {
+        terms.push(row);
+    })
+    .on("error", (err) => {
+        console.log(err.message);
+    });
+
+// Server
 
 const app = new express();
 const server = createServer(app);
@@ -27,6 +42,10 @@ app.get('/activeResponse', (req, res) => {
     let response = "Bot Example Response";
     res.json({response});
 });
+
+app.get('/terms', (req, res) => {
+    res.json({terms});
+})
 
 app.post('/input', (req, res) => {
 
