@@ -51,9 +51,9 @@ class LLMFactory():
     _context_db = None
 
     @staticmethod
-    def initiate_Llama():
+    def initiate_model(model_name: str = "meta-llama/Llama-2-7b-chat-hf"):
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = read_api_key()
-        LLMFactory.get_model()
+        LLMFactory.get_model(model_name)
 
     @staticmethod
     def get_model(model_name: str = "meta-llama/Llama-2-7b-chat-hf"):
@@ -84,7 +84,7 @@ class LLMFactory():
     @staticmethod
     def get_context_db(file_directory: str = './contexts', file_extension = '.txt'):
         if LLMFactory._context_db == None:
-            LLMFactory._context_db = create_db_dir(file_directory, file_extension):
+            LLMFactory._context_db = create_db_dir(file_directory, file_extension)
         return LLMFactory._context_db
     
     @staticmethod
@@ -93,9 +93,12 @@ class LLMFactory():
     
     @staticmethod
     def get_faq_chain(model_name: str = "meta-llama/Llama-2-7b-chat-hf", 
-                      create_new = False, memory=None):
+                      context = '',
+                      create_new = False, 
+                      memory=None):
         if create_new or LLMFactory._faq_chain == None:
-            LLMFactory._faq_chain, LLMFactory._memory = LLMFactory.__create_faq_chain(model_name, memory)
+            LLMFactory._faq_chain, LLMFactory._memory = \
+                LLMFactory.__create_faq_chain(model_name, context, memory)
         return LLMFactory._faq_chain
     
     @staticmethod
@@ -122,7 +125,7 @@ class LLMFactory():
         model = LLMFactory.get_model(llm_name)
         tokenizer = LLMFactory.get_tokenizer(llm_name)
 
-        pipe = pipeline("text-classification",
+        pipe = pipeline("text-generation",
                         model=model,
                         tokenizer= tokenizer,
                         torch_dtype=torch.bfloat16,
@@ -136,22 +139,19 @@ class LLMFactory():
 
         return HuggingFacePipeline(pipeline = pipe, model_kwargs = {'temperature':temperature})
     
-    def __create_faq_chain(model_name = "meta-llama/Llama-2-7b-chat-hf", memory=None):
-        instruction = """Chat History:\n\n{chat_history} \n\nEnd Chat History \n\n
-                       Chat History:\n\n{chat_history} \n\nEnd Chat History\n\nUser: {user_input}"""
+    def __create_faq_chain(model_name = "meta-llama/Llama-2-7b-chat-hf", context='', memory=None):
+        instruction = """\n\nChat History:\n\n{chat_history} \n\nEnd Chat History\n\nUser: {user_input}"""
         system_prompt = """You are a helpful assistant, you always only answer for the 
         assistant then you stop. Read the chat history and reference the context provided 
         to better be able to respond to the prompt"""
 
-        template = create_prompt(instruction, system_prompt)
+        template = create_prompt(instruction, context, system_prompt)
         prompt = PromptTemplate(
             input_variables=["chat_history", "user_input"], template=template)
         if memory == None:
             memory = ConversationBufferMemory(memory_key="chat_history")
         return LLMChain(llm=LLMFactory.get_pipeline(model_name), 
-                        prompt=prompt, verbose=True, memory=memory)
-
-
+                        prompt=prompt, verbose=True, memory=memory), memory
 
 def get_context_docs(query: str, db):
     return db.similarity_search(query)
@@ -171,8 +171,12 @@ def create_single_doc(file_name: str):
     return doc
 
 def create_prompt(instruction, context = '', new_system_prompt=DEFAULT_SYSTEM_PROMPT):
+    B_INST, E_INST = "[INST]", "[/INST]"
+    B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
+
     SYSTEM_PROMPT = B_SYS + new_system_prompt + E_SYS
-    prompt_template =  B_INST + SYSTEM_PROMPT + instruction + E_INST
+    print(B_INST, SYSTEM_PROMPT, context, instruction, E_INST)
+    prompt_template =  B_INST + SYSTEM_PROMPT + context + instruction + E_INST
     return prompt_template
 
 def cut_off_text(text, prompt):
@@ -236,16 +240,22 @@ def is_faq(prompt: str) -> bool:
     _, simularity = get_similarity(prompt, db=db)
     return min(simularity) < 1
 
-def answer_faq(user_prompt: str, llm_chain):
+def answer_faq(user_prompt: str):
     #system_prompt = ''
     context_db = LLMFactory.get_context_db()
-    context_list = get_context_docs(user_prompt, context_db)
-    prompt = create_prompt(user_prompt) #system_prompt
-    llm_chain = LLMFactory.get_faq_chain()
-    return 
+    context_list_db = get_context_docs(user_prompt, context_db)
+    context = get_context_from_db(context_list_db)
+    llm_chain = LLMFactory.get_faq_chain(create_new=True,
+                                         context=context,
+                                         memory=LLMFactory.get_current_chain_memory())
+    return llm_chain.predict(user_input=user_prompt)
 
-def get_text_from_db(db):
-    ""
+def get_context_from_db(db):
+    header = f'\nContext:'
+    footer = f'End Context\n\n'
+    for doc in db:
+        header = f'{header}\n\n {doc.page_content}'
+    return header + footer
 
 def get_similarity(query, doc=None, db=None):
     """
