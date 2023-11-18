@@ -40,8 +40,6 @@ class ClinicMatch:
 class ClinicQuery:
     def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = None) -> None:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
-        embeddings = HuggingFaceEmbeddings()
-        del os.environ["HUGGINGFACEHUB_API_TOKEN"]
 
         tokenizer = AutoTokenizer.from_pretrained("t5-small",
                                           use_auth_token=True,)
@@ -81,4 +79,4 @@ class ClinicQuery:
         output = llm_chain.run(text)
         # output = generate(text, template)
 
-        return parse_text(output)
+        return LangChain_chatbot_util.parse_text(output)
