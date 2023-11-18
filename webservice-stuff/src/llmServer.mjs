@@ -27,6 +27,7 @@ const io = new Server(server);
 const port = 3000;
 
 let conversations = {};
+let provider_details = {};
 
 app.use(express.json());
 
@@ -77,6 +78,38 @@ app.post('/input', (req, res) => {
     }
 });
 
+app.post('/inputProviderDetails', (req, res) => {
+    let socketId = req.query.id;
+    if (provider_details[socketId]) {
+        provider_details[socketId] = (req.body.message);
+        let status = "Success";
+        res.json({
+            status
+        })
+    } else {
+        let status = "error";
+        res.json({
+            status
+        })
+    }
+});
+
+app.get('/getProviderDetails', (req, res) => {
+    let socketId = req.query.id;
+    if (provider_details[socketId]) {
+        let details = provider_details[socketId];
+        let status = "Success";
+        res.json({
+            status, provider_details
+        });
+    } else {
+        let status = "error";
+        res.json({
+            status
+        })
+    }
+});
+
 app.delete('/resetConv', (req, res) => {
     let socketId = req.query.id;
     conversations[socket.id] = [];
@@ -90,9 +123,11 @@ app.delete('/resetConv', (req, res) => {
 io.on('connection', (socket) => {
     console.log("User connected");
     conversations[socket.id] = [];
+    provider_details[socket.id] = [];
 
     socket.on('disconnect', () => {
         delete conversations[socket.id];
+        delete provider_details[socket.id];
         console.log("User disconnected");
     });
 

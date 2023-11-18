@@ -87,6 +87,11 @@ const sendResponse = async () => {
 
     // Clear user input
     userInputText.value = "";
+
+    let provider_details = await getProviders(socket.id);
+    if (provider_details !== "No Details") {
+        alert("Provider Details: " + provider_details);
+    }
 }
 
 const loadTerms = async () => {
