@@ -16,7 +16,7 @@ from langchain import PromptTemplate,  LLMChain
 from LangChain_chatbot_util import *
 
 import os
-import textwrap
+import pandas as pd
 from clinic_match import ClinicMatch
 
 class ClinicMatch:
@@ -44,13 +44,13 @@ class ClinicQuery:
         tokenizer = AutoTokenizer.from_pretrained("t5-small",
                                           use_auth_token=True,)
         
-        pip = pipeline("text-generation", model="lmsys/vicuna-7b-v1.3", tokenizer=tokenizer, device_map="auto",
+        self.pipe = pipeline("text-generation", model="lmsys/vicuna-7b-v1.3", tokenizer=tokenizer, device_map="auto",
                 num_return_sequences=1,
                 eos_token_id=tokenizer.eos_token_id
                 )
         
 
-    def query_providers(text):
+    def query_providers(self, text):
 
         #### Single prompt only
         system_prompt = """\
@@ -74,9 +74,9 @@ class ClinicQuery:
 
         prompt = PromptTemplate(template=template, input_variables=["text"])
 
-        llm_chain = LLMChain(prompt=prompt, llm=HuggingFacePipeline(pipeline = pipe, model_kwargs = {'temperature':0}))
+        llm_chain = LLMChain(prompt=prompt, llm=HuggingFacePipeline(pipeline = self.pipe, model_kwargs = {'temperature':0}))
 
         output = llm_chain.run(text)
         # output = generate(text, template)
 
-        return LangChain_chatbot_util.parse_text(output)
+        return parse_text(output)
