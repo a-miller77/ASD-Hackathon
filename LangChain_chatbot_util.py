@@ -51,8 +51,9 @@ class LLMFactory():
     _context_db = None
 
     @staticmethod
-    def initiate_model(model_name: str = "meta-llama/Llama-2-7b-chat-hf"):
-        os.environ["HUGGINGFACEHUB_API_TOKEN"] = read_api_key()
+    def initiate_model(model_name: str = "meta-llama/Llama-2-7b-chat-hf", api_key = None):
+        if api_key != None:
+            os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
         LLMFactory.get_model(model_name)
 
     @staticmethod
