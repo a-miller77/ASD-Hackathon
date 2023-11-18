@@ -4,6 +4,8 @@ import {Server} from "socket.io";
 import { parse } from "csv-parse";
 import fs from "node:fs";
 
+
+
 // Parse CSV
 
 let terms = [];
@@ -26,7 +28,7 @@ const port = 3000;
 
 let conversations = {};
 
-app.use(express.text());
+app.use(express.json());
 
 app.use(express.static("public", {index: "index.html"}))
 
@@ -36,23 +38,46 @@ app.get('/activeConversations', (req, res) => {
     })
 });
 
-app.get('/activeResponse', (req, res) => {
+app.get('/activeResponse', async (req, res) => {
     let socketId = req.query.id;
-    // Call internally to get a response from our model
-    let response = "Bot Example Response";
-    res.json({response});
+    // console.log(conversations[socketId]);
+    // let curLength = conversations[socketId].length;
+    res.json({socketId});
 });
+
+app.get('/lastResponse', async (req, res) => {
+    let socketId = req.query.id;
+    if (conversations[socketId]) {
+        let lastResponse = conversations[socketId].slice(-1)[0];
+        console.log("User: " + socketId + " is waiting for a response. . .");
+        res.json({lastResponse});
+    } else {
+        let status = 'error';
+        res.json({status});
+    }
+})
 
 app.get('/terms', (req, res) => {
     res.json({terms});
 })
 
 app.post('/input', (req, res) => {
-
+    let socketId = req.query.id;
+    conversations[socketId].push(req.body.message);
+    let status = "Success";
+    res.json({
+        status
+    })
 });
 
 app.delete('/resetConv', (req, res) => {
+    let socketId = req.query.id;
+    conversations[socket.id] = [];
 
+    let status = "Success";
+    res.json({
+        status
+    });
 });
 
 io.on('connection', (socket) => {
@@ -65,9 +90,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('userMessage', (data) => {
-        conversations[socket.id].push(['User', data.message]);
-        console.log(data);
-        console.log(socket.id);
+        conversations[socket.id].push(data.message);
     });
 });
 
