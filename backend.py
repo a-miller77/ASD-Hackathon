@@ -17,8 +17,8 @@ class Backend:
         LLMFactory.initiate_model(model_name="lmsys/vicuna-7b-v1.3")
         key = read_api_key()
 
-        cm = ClinicMatch(key)
-        cq = ClinicQuery(key)
+        # cm = ClinicMatch(key)
+        # cq = ClinicQuery(key)
 
         while True:
             start = time.time()
@@ -35,9 +35,10 @@ class Backend:
         for key, conversation in o['conversations'].items():
             if conversation.__len__() % 2 == 1:
                 last_response = conversation[-1]
-                output, prompt = llm_response(last_response)
+                output = llm_response(last_response)
+                
                 if output == 'begin provider programatical':
-                    Backend.post(Backend.provider(prompt), PROVIDER_OUT_URL, key)
+                    Backend.post(Backend.provider(last_response), PROVIDER_OUT_URL, key)
                 else:
                     Backend.post(output, OUT_URL, key)
     
@@ -48,4 +49,5 @@ class Backend:
         out_object = { "message": output }
                 
         out_json = json.dumps(out_object)
+        print("Posting {}".format(out_json))
         requests.post(OUT_URL + key, json=out_json)
