@@ -175,7 +175,7 @@ def create_prompt(instruction, context = '', new_system_prompt=DEFAULT_SYSTEM_PR
     B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 
     SYSTEM_PROMPT = B_SYS + new_system_prompt + E_SYS
-    print(B_INST, SYSTEM_PROMPT, context, instruction, E_INST)
+    # print(B_INST, SYSTEM_PROMPT, context, instruction, E_INST)
     prompt_template =  B_INST + SYSTEM_PROMPT + context + instruction + E_INST
     return prompt_template
 
