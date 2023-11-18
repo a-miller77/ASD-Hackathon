@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HacksGiving ASD Provider Forward</title>
+    <!-- Include the latest version of Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link href="index.css" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" rel="stylesheet">
+
+    <!-- Socket Connection -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- Include the javascript code -->
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="llmServerAPIManager.js"></script>
+</head>
+<body>
+
+<div class="page-content page-container" id="page-content">
+    <div class="padding">
+        <div class="row container d-flex justify-content-center">
+            <div class="col-sm">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> Example Questions </h5>
+                        <p class="card-text">
+                            Here are some quick example questions you could potentially ask the chatbot.
+                        </p>
+                        <div id="suggestedOptions">
+                            <a class="btn btn-primary m-2 suggested">
+                                Can you assist me in locating an ABA (Applied Behavior Analysis)
+                                therapist who works with preschool-aged children with autism?
+                            </a>
+                            <a class="btn btn-primary m-2 suggested"> I would like to know more about providers in the area
+                                that could help my child with Autism Spectrum Disorder manage their stress.</a>
+                            <a class="btn btn-primary m-2 suggested"> I would like to know where I
+                                could go to get my child screened for autism</a>
+                            <a class="btn btn-primary m-2 suggested"> I would like to obtain general knowledge
+                            about Autism Spectrum Disorder</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card card-bordered">
+                    <div class="card-header">
+                        <h4 class="card-title"><strong>Chat</strong></h4>
+                        <a class="btn btn-xs btn-secondary" href="#" data-abc="true"> Reset Conversation </a>
+                    </div>
+
+
+                    <div id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
+                        <div class="media media-chat">
+                            <img class="avatar" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="avatar">
+                            <div class="media-body">
+                                <p>Hello, I'm a chatbot and I can inform you about autism. [OTHER FUNCTIONALITY MENTIONED HERE]</p>
+                            </div>
+                        </div>
+
+                        <div id="bottomRail" class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;">
+                            <div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;">
+                            </div>
+                        </div>
+
+                        <div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;">
+                            <div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="publisher bt-1 border-light">
+    <!--                        <img class="avatar avatar-xs" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="...">-->
+                            <label>
+                                <input id="userInput" class="publisher-input overflow-auto" type="text" placeholder="Ask a question">
+                            </label>
+                            <a id="planeSendBtn" class="publisher-btn text-info" href="#" data-abc="true"><i class="fa fa-paper-plane"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- commented out for now, acronyms-->
+<!--        <div class="row container d-flex justify-content-center">-->
+<!--            <div class="col-md">-->
+<!--                <div class="card card-bordered">-->
+<!--                    <div class="card-body">-->
+<!--                        <h4 class="card-title"><strong>Acronyms Detected</strong></h4>-->
+<!--                        <p class="card-text">-->
+<!--                            Detected acronyms and their meaning.-->
+<!--                        </p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div class="row container d-flex justify-content-center">
+            <div class="col-sm">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"> Term Lookup </h5>
+                        <p class="card-text">
+                            Here are some relatively common terms to look up in our database.
+                        </p>
+                        <div class="form-floating mb-3">
+                            <input type="textarea" id="filter" class="form-control" placeholder=" ">
+                            <label for="filter">Word Filter:</label>
+                        </div>
+                        <div>
+                            <table id="table1" class="table">
+                                <thead><tr><th>Term</th><th>Term Definition</th><th>Example</th><th>Source</th></tr></thead>
+                                <tbody id="table1body">
+                                <!-- This is the table results will appear -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
