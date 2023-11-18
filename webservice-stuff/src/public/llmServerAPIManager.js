@@ -1,7 +1,7 @@
-const server = 'localhost';
-const getResponseURL = `http://${server}:3000/activeResponse`;
-const getLastResponseURL = `http://${server}:3000/lastResponse`;
-const getTermsURL = `http://${server}:3000/terms`
+const server = window.location.href;
+const getResponseURL = `${server}activeResponse`;
+const getLastResponseURL = `${server}lastResponse`;
+const getTermsURL = `${server}terms`
 
 const getResponse = (socketId) => {
     return fetch(getResponseURL + "?id=" + socketId, {
