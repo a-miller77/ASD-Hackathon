@@ -220,8 +220,8 @@ def parse_text(text):
 def llm_response(prompt: str):
     request_type = determine_request_type(prompt)
     if request_type == 'services': return 'begin provider programatical', prompt
-    if request_type == 'faq': return answer_faq(prompt)
-    return 'I cannot help with that as it is outside the bounds of my expertise'
+    if request_type == 'faq': return answer_faq(prompt), prompt
+    return 'I cannot help with that as it is outside the bounds of my expertise', prompt
 
 
 
