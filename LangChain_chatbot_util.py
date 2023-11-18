@@ -234,12 +234,13 @@ def is_service(prompt):
     doc = create_single_doc("./contexts/ASD_services")
     _, simularity = get_similarity(prompt, doc=doc)
     simularity = simularity[0]
-    return simularity < 0.7
+    print(simularity)
+    return simularity < 0.8
 
 def is_faq(prompt: str) -> bool:
     db = create_db_dir("./contexts")
     _, simularity = get_similarity(prompt, db=db)
-    return min(simularity) < 1
+    return min(simularity) < 1.6
 
 def answer_faq(user_prompt: str):
     #system_prompt = ''
