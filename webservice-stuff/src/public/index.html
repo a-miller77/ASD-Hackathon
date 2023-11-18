@@ -9,8 +9,9 @@
     <link href="index.css" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" rel="stylesheet">
 
-    <!-- Include the text file manager code -->
+    <!-- Include the javascript code -->
     <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="llmServerAPIManager.js"></script>
 </head>
 <body>
 
@@ -27,35 +28,30 @@
 
                     <div id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
                         <div class="media media-chat">
-                            <img class="avatar" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="...">
+                            <img class="avatar" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="avatar">
                             <div class="media-body">
                                 <p>Hello, I'm a chatbot and I can inform you about autism. [OTHER FUNCTIONALITY MENTIONED HERE]</p>
                             </div>
                         </div>
 
-                        <div class="media media-chat media-chat-reverse">
-                            <div class="media-body">
-                                <p>Example User Query</p>
+                        <div id="bottomRail" class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;">
+                            <div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;">
                             </div>
                         </div>
 
-                        <div class="media media-chat">
-                            <img class="avatar" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="...">
-                            <div class="media-body">
-                                <p>Example Chatbot Response</p>
+                        <div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;">
+                            <div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;">
                             </div>
                         </div>
-
-                        <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;"></div></div></div>
-
-                    <div class="publisher bt-1 border-light">
-<!--                        <img class="avatar avatar-xs" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="...">-->
-                        <label>
-                            <input class="publisher-input overflow-auto" type="text" placeholder="Ask a question">
-                        </label>
-                        <a class="publisher-btn text-info" href="#" data-abc="true"><i class="fa fa-paper-plane"></i></a>
                     </div>
 
+                    <div class="publisher bt-1 border-light">
+    <!--                        <img class="avatar avatar-xs" src="Windows_10_Default_Profile_Picture.svg" width="32" height ="32" alt="...">-->
+                            <label>
+                                <input id="userInput" class="publisher-input overflow-auto" type="text" placeholder="Ask a question">
+                            </label>
+                            <a id="planeSendBtn" class="publisher-btn text-info" href="#" data-abc="true"><i class="fa fa-paper-plane"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
