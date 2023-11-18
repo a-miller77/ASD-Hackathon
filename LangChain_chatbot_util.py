@@ -40,15 +40,23 @@ def read_api_key(file_path='api-key.txt'):
     except Exception as e:
         print(f"Error: {e}")
         return None
-
+    
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = read_api_key()
 
 class LLMFactory():
     _llm_models = {}
     _llm_tokenizers = {}
+    _faq_chain = None
+    _memory = None
+    _context_db = None
 
     @staticmethod
-    def get_model(model_name):
+    def initiate_Llama():
+        os.environ["HUGGINGFACEHUB_API_TOKEN"] = read_api_key()
+        LLMFactory.get_model()
+
+    @staticmethod
+    def get_model(model_name: str = "meta-llama/Llama-2-7b-chat-hf"):
         if LLMFactory._llm_models.get(model_name, None) == None:
 
             print('importing model and tokenizer from HuggingFace')
@@ -61,7 +69,7 @@ class LLMFactory():
         return LLMFactory._llm_models.get(model_name)
     
     @staticmethod
-    def get_tokenizer(model_name):
+    def get_tokenizer(model_name: str = "meta-llama/Llama-2-7b-chat-hf"):
         if LLMFactory._llm_tokenizers.get(model_name, None) == None:
 
             print('importing model and tokenizer from HuggingFace')
@@ -74,8 +82,27 @@ class LLMFactory():
         return LLMFactory._llm_tokenizers.get(model_name)
     
     @staticmethod
-    def get_pipeline(model_name):
+    def get_context_db(file_directory: str = './contexts', file_extension = '.txt'):
+        if LLMFactory._context_db == None:
+            LLMFactory._context_db = create_db_dir(file_directory, file_extension):
+        return LLMFactory._context_db
+    
+    @staticmethod
+    def get_pipeline(model_name: str = "meta-llama/Llama-2-7b-chat-hf"):
         return LLMFactory.__create_pipeline(model_name)
+    
+    @staticmethod
+    def get_faq_chain(model_name: str = "meta-llama/Llama-2-7b-chat-hf", 
+                      create_new = False, memory=None):
+        if create_new or LLMFactory._faq_chain == None:
+            LLMFactory._faq_chain, LLMFactory._memory = LLMFactory.__create_faq_chain(model_name, memory)
+        return LLMFactory._faq_chain
+    
+    @staticmethod
+    def get_current_chain_memory():
+        if LLMFactory._faq_chain == None:
+            LLMFactory.get_faq_chain()
+        return LLMFactory._memory
 
     @staticmethod
     def __load_llm(model_name):
@@ -88,7 +115,6 @@ class LLMFactory():
                                                 # load_in_8bit=True,
                                                 # load_in_4bit=True
                                                 )
-        
         return model, tokenizer
 
     @staticmethod
@@ -109,13 +135,30 @@ class LLMFactory():
                     )
 
         return HuggingFacePipeline(pipeline = pipe, model_kwargs = {'temperature':temperature})
+    
+    def __create_faq_chain(model_name = "meta-llama/Llama-2-7b-chat-hf", memory=None):
+        instruction = """Chat History:\n\n{chat_history} \n\nEnd Chat History \n\n
+                       Chat History:\n\n{chat_history} \n\nEnd Chat History\n\nUser: {user_input}"""
+        system_prompt = """You are a helpful assistant, you always only answer for the 
+        assistant then you stop. Read the chat history and reference the context provided 
+        to better be able to respond to the prompt"""
+
+        template = create_prompt(instruction, system_prompt)
+        prompt = PromptTemplate(
+            input_variables=["chat_history", "user_input"], template=template)
+        if memory == None:
+            memory = ConversationBufferMemory(memory_key="chat_history")
+        return LLMChain(llm=LLMFactory.get_pipeline(model_name), 
+                        prompt=prompt, verbose=True, memory=memory)
+
+
 
 def get_context_docs(query: str, db):
     return db.similarity_search(query)
 
 def create_db_dir(file_directory: str, file_extension = '.txt'):
     loader = DirectoryLoader(file_directory, glob=f"./*{file_extension}")
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 
     docs = loader.load()
     docs_split = text_splitter.split_documents(docs)
@@ -127,18 +170,7 @@ def create_single_doc(file_name: str):
     doc = loader.load()
     return doc
 
-def create_faq_chain(model_name = "meta-llama/Llama-2-7b-chat-hf"):
-    instruction = "Chat History:\n\n{chat_history} \n\nEnd Chat History\n\nUser: {user_input}"
-    system_prompt = "You are a helpful assistant, you always only answer for the assistant then you stop. Read the chat history to get context"
-
-    template = get_prompt(instruction, system_prompt)
-    prompt = PromptTemplate(
-        input_variables=["chat_history", "user_input"], template=template)
-    memory = ConversationBufferMemory(memory_key="chat_history")
-    return LLMChain(
-        llm=LLMFactory.get_pipeline(model_name), prompt=prompt, verbose=True, memory=memory)
-
-def create_prompt(instruction, new_system_prompt=DEFAULT_SYSTEM_PROMPT ):
+def create_prompt(instruction, context = '', new_system_prompt=DEFAULT_SYSTEM_PROMPT):
     SYSTEM_PROMPT = B_SYS + new_system_prompt + E_SYS
     prompt_template =  B_INST + SYSTEM_PROMPT + instruction + E_INST
     return prompt_template
@@ -155,7 +187,7 @@ def remove_substring(string, substring):
     return string.replace(substring, "")
 
 def generate(text, model, tokenizer):
-    prompt = get_prompt(text)
+    prompt = create_prompt(text)
     with torch.autocast('cuda', dtype=torch.bfloat16):
         inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
         outputs = model.generate(**inputs,
@@ -186,6 +218,8 @@ def llm_response(prompt: str):
     if request_type == 'faq': return answer_faq(prompt)
     return 'I cannot help with that as it is outside the bounds of my expertise'
 
+
+
 def determine_request_type(prompt: str) -> str:
     if is_service(prompt): return 'service'
     if is_faq(prompt): return 'faq'
@@ -204,11 +238,14 @@ def is_faq(prompt: str) -> bool:
 
 def answer_faq(user_prompt: str, llm_chain):
     #system_prompt = ''
-    context_db = create_db_dir(prompt)
-    context_list = get_context_docs(user_prompt)
-    prompt = get_prompt(user_prompt) #system_prompt
-    llm_chain = 
-    return result
+    context_db = LLMFactory.get_context_db()
+    context_list = get_context_docs(user_prompt, context_db)
+    prompt = create_prompt(user_prompt) #system_prompt
+    llm_chain = LLMFactory.get_faq_chain()
+    return 
+
+def get_text_from_db(db):
+    ""
 
 def get_similarity(query, doc=None, db=None):
     """
