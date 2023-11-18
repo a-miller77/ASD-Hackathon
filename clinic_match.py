@@ -7,7 +7,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.schema.document import Document
 
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer
 from transformers import pipeline
 
 from langchain import HuggingFacePipeline
@@ -16,7 +16,7 @@ from langchain import PromptTemplate,  LLMChain
 from LangChain_chatbot_util import *
 
 class ClinicMatch:
-    def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = None) -> None:
+    def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = 'Index') -> None:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
         embeddings = HuggingFaceEmbeddings()
         del os.environ["HUGGINGFACEHUB_API_TOKEN"]
@@ -29,18 +29,24 @@ class ClinicMatch:
         self.db = FAISS.from_documents(data, embeddings)
 
     
-    def query(self, query: str) -> 'list[Document]':
-        return self.db.similarity_search(query)
+    # def query(self, query: str) -> 'list[Document]':
+    def query(self, query: str) -> str:
+        search_res =  self.db.similarity_search(query)
+        sources = [result.metadata['source'] for result in search_res]
+        return sources[:4]
     
 
 class ClinicQuery:
-    def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = None) -> None:
+    def __init__(self, token: str) -> None:
         os.environ["HUGGINGFACEHUB_API_TOKEN"] = token
 
         tokenizer = AutoTokenizer.from_pretrained("t5-small",
-                                          use_auth_token=True,)
+                                          token=True,)
         
-        self.pipe = pipeline("text-generation", model="lmsys/vicuna-7b-v1.3", tokenizer=tokenizer, device_map="auto",
+        self.pipe = pipeline("text-generation", 
+                model="lmsys/vicuna-7b-v1.3", 
+                tokenizer=tokenizer, 
+                device_map="auto",
                 num_return_sequences=1,
                 eos_token_id=tokenizer.eos_token_id
                 )
@@ -69,7 +75,9 @@ class ClinicQuery:
 
         prompt = PromptTemplate(template=template, input_variables=["text"])
 
-        llm_chain = LLMChain(prompt=prompt, llm=HuggingFacePipeline(pipeline = self.pipe, model_kwargs = {'temperature':0}))
+        llm_chain = LLMChain(prompt=prompt, 
+                            llm=HuggingFacePipeline(pipeline = self.pipe, 
+                            model_kwargs = {'temperature':0}))
 
         output = llm_chain.run(text)
 
