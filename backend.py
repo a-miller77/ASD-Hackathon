@@ -20,9 +20,9 @@ class Backend:
         for key, conversation in o['conversations'].items():
             if conversation.__len__() % 2 == 1:
                 last_response = conversation[-1]
-                output = llm_response(last_response)
+                output, prompt = llm_response(last_response)
                 if output == 'begin provider programatical':
-                    Backend.provider()
+                    Backend.provider(prompt)
                 else:
                     Backend.post(output, key)
     
