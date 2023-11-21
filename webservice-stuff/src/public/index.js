@@ -89,6 +89,7 @@ const sendResponse = async () => {
     userInputText.value = "";
 
     let provider_details = await getProviders(socket.id);
+    console.log(provider_details);
     if (provider_details !== "No Details") {
         alert("Provider Details: " + provider_details);
     }

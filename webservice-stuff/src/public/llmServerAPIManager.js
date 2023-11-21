@@ -2,7 +2,7 @@ const server = window.location.href;
 const getResponseURL = `${server}activeResponse`;
 const getLastResponseURL = `${server}lastResponse`;
 const getTermsURL = `${server}terms`
-const getProvidersURL = `${server}`
+const getProvidersURL = `${server}providers`
 
 const getProviders = (socketId) => {
     return fetch(getProvidersURL + "?id=" + socketId, {

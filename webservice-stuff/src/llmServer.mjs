@@ -18,6 +18,16 @@ fs.createReadStream("./Hacksgiving ASD V1.4-Terms.csv")
         console.log(err.message);
     });
 
+let providers = [];
+fs.createReadStream("./provider_info_full.csv")
+    .pipe(parse({delimiter: ",", from_line: 2}))
+    .on("data", (row) => {
+        terms.push(row);
+    })
+    .on("error", (err) => {
+        console.log(err.message);
+    });
+
 // Server
 
 const app = new express();
@@ -35,7 +45,8 @@ app.use(express.static("public", {index: "index.html"}))
 
 app.get('/activeConversations', (req, res) => {
     res.json( {
-        conversations
+        conversations,
+        provider_details
     })
 });
 
@@ -60,6 +71,10 @@ app.get('/lastResponse', async (req, res) => {
 
 app.get('/terms', (req, res) => {
     res.json({terms});
+})
+
+app.get('/providers', (req, res) => {
+    res.json({providers});
 })
 
 app.post('/input', (req, res) => {
