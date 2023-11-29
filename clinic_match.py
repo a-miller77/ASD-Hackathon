@@ -13,7 +13,7 @@ from transformers import pipeline
 from langchain import HuggingFacePipeline
 from langchain import PromptTemplate,  LLMChain
 
-from LangChain_chatbot_util import *
+from chatty.LangChain_chatbot_util import *
 
 class ClinicMatch:
     def __init__(self, token: str, file_path = './big_data_energy/provider_info.csv', source = 'Index') -> None:

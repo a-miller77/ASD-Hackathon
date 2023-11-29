@@ -2,7 +2,7 @@ import time, json, requests
 from clinic_match import ClinicMatch, ClinicQuery
 import pandas as pd
 
-from LangChain_chatbot_util import *
+from chatty.LangChain_chatbot_util import *
 
 
 WATCH_URL = 'https://6d85-155-92-14-110.ngrok-free.app/activeconversations'
